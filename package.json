@@ -1,0 +1,29 @@
+{
+  "name": "learning-mevn",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon ./app.js --exec babel-node -e js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AngelGuerrero/learning-mevn.git"
+  },
+  "author": "Ángel Guerrero",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AngelGuerrero/learning-mevn/issues"
+  },
+  "homepage": "https://github.com/AngelGuerrero/learning-mevn#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-0": "^6.24.1",
+    "nodemon": "^1.18.3"
+  },
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}

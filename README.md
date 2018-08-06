@@ -150,3 +150,99 @@ Y se podrá ver el contenido en el navegador correctamente.
 
 ![hello_world_express](./docs/images/hello_world_express.PNG)
 
+---
+
+# 3 Sirviendo JSON
+
+La idea de servir un Json es simplemente que Express retorne la información para que otra aplicación pueda hacer uso de esa información.
+
+Lo primero es definir los datos que vamos a retornar, en este caso específico se creó una carpeta de nombre `data` dentro de la cual se crearon dos archivos de formato json de nombres `students.json` y `careers.json`.
+
+Dentro de los cuales se tiene la siguiente información.
+
+Para el archivo de students.json
+```json
+[
+    {
+        "id": "1",
+        "name": "Ana",
+        "course": "Computer Science"
+    },
+    {
+        "id": "2",
+        "name": "Sophia",
+        "course": "Software Engineering"
+    },
+    {
+        "id": "3",
+        "name": "Wendy",
+        "course": "Telematics"
+    }
+]
+```
+
+Para el archivo careers.json
+```json
+[
+    {
+        "id": 1,
+        "name": "Nuclear Engineering"
+    },
+    {
+        "id": 2,
+        "name": "Software Engineering"
+    },
+    {
+        "id": 3,
+        "name": "Electronics and Communications Engineering"
+    },
+    {
+        "id": 4,
+        "name": "Computer Science Engineering"
+    },
+    {
+        "id": 5,
+        "name": "Electrical Engineering"
+    }
+]
+```
+
+Lo siguiente es definir las rutas para las cuales se servirán los datos de cada archivo, respectivamente.
+
+```javascript
+import students from './data/students.json';
+import careers from './data/careers.json';
+import express from 'express';
+
+const server = express();
+const PORT = 3000;
+
+// RUTAS
+
+// Función para construir una ruta
+const buildUrl = (version, path) => `/api/${version}/${path}`;
+
+// Root path
+server.get('/', (req, res) => res.send('Hola mundo desde Express'));
+
+// API's
+
+// api/v1/students.json
+server.get(buildUrl('v1', 'students'), (req, res) => res.json(students));
+
+// api/v1/careers.json
+server.get(buildUrl('v1', 'careers'), (req, res) => res.json(careers));
+
+// Inicia el servidor
+server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+```
+
+Se puede notar que primero se importan los datos de cada archivo Json, se crea una función para construir la URL, después se definen las rutas a las que responderán cada petición.
+
+Respuesta de `api/v1/students`
+
+![students_json](./docs/images/students_json.PNG)
+
+Respuesta de `api/v1/careers`
+
+![careers_json](./docs/images/careers_json.PNG)

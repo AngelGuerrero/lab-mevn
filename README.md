@@ -123,11 +123,11 @@ server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
 Donde server llama a la función get a la cual se le pasan dos parámetros, el primero es la ruta a la cual se querrá acceder y el otro parámetro es un callback que recibe un _request_ y un _response_.
 
-![Hola_mundo](./docs/images/hello_world.png)
+![Hola_mundo](./docs/images/hello_world.PNG)
 
 Mas sin embargo es importante notar que en el navegador siempre está esperando una respuesta, esto es porque desde Node no le hemos dado una respuesta que pueda manejar.
 
-![unresolve_response](./docs/images/unresolve_response.png)
+![unresolve_response](./docs/images/unresolve_response.PNG)
 
 Para ello es necesario modificar el código de la siguiente manera: 
 
@@ -148,5 +148,5 @@ server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
 Y se podrá ver el contenido en el navegador correctamente.
 
-![hello_world_express](./docs/images/hello_world_express.png)
+![hello_world_express](./docs/images/hello_world_express.PNG)
 

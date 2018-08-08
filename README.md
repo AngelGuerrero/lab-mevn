@@ -303,3 +303,79 @@ Si se entra a buscar los datos del estudiante 1, se obtendrá una respuesta como
 
 Mas sin embargo si se busca un elemento que no existe se obtiene el siguiente mensaje.
 ![student_four_json](./docs/images/student_four_json.PNG)
+
+
+# 5 Express Router
+Un `router` en Express no es más que un objeto aislado de middleware y rutas, se puede pensar en ello como una mini-aplicación capaz de mejorar el rendimiento del middleware y de las funciones de ruteo.
+
+Con eso en mente se puede refactorizar el código que se tiene hasta ahora en el archivo `app.js` donde se establecen las rutas.
+
+Para ello se crea un archivo llamado routes, y dentro de este se crea un archivo llamado `StudentRoutes.js` para almacenar las rutas de este modelo en específico.
+
+A lo cual el archivo `app.js` quedó de la siguiente forma:
+
+```javascript
+import express from 'express';
+import StudentRoutes from './routes/StudentRoutes';
+import CareerRoutes from './routes/CareerRoutes';
+
+const server = express();
+const PORT = 3000;
+
+// Función para construir una ruta
+const buildUrl = (version, path = '') => `/api/${version}/${path}`;
+
+// RUTAS
+server.use(buildUrl('v1'), StudentRoutes);
+server.use(buildUrl('v1'), CareerRoutes);
+
+// Root path
+server.get('/', (req, res) => res.send('Hola mundo desde Express'));
+
+// Inicia el servidor
+server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+```
+
+Y el archivo de `StudentRoutes.js` queda de la siguiente forma:
+```javascript
+import students from '../data/students.json';
+import express from 'express';
+import _ from 'lodash';
+
+const router = express.Router();
+
+// API's
+
+// api/v1/students.json
+router.get('/students', (req, res) => res.json(students));
+
+// api/v1/student/:id
+router.get('/student/:id', (req, res) => {
+    const student = _.find(students, student => student.id === req.params.id);
+
+    if (student) {
+        res.json(student);
+    } else {
+        res.send(`No existe el estudiante con el id: ${req.params.id}`);
+    }
+    res.end();
+});
+
+module.exports = router;
+```
+
+Así también como para el archivo `CareerRoutes.js`:
+```javascript
+import careers from '../data/careers.json';
+import express from 'express';
+
+const router = express.Router();
+
+// api/v1/careers.json
+router.get('/careers', (req, res) => res.json(careers));
+
+module.exports = router;
+```
+
+Y el funcionamiento sigue siendo el mismo, sólo que ahora el código tiene más estructura y así puede ser mejor mantenido.
+

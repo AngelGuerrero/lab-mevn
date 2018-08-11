@@ -1,0 +1,22 @@
+[
+    {
+        "id": 1,
+        "name": "Nuclear Engineering"
+    },
+    {
+        "id": 2,
+        "name": "Software Engineering"
+    },
+    {
+        "id": 3,
+        "name": "Electronics and Communications Engineering"
+    },
+    {
+        "id": 4,
+        "name": "Computer Science Engineering"
+    },
+    {
+        "id": 5,
+        "name": "Electrical Engineering"
+    }
+]

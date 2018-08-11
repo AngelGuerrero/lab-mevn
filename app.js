@@ -1,14 +1,21 @@
-import express from 'express';
 import StudentRoutes from './routes/StudentRoutes';
 import CareerRoutes from './routes/CareerRoutes';
+import bodyParser from 'body-parser';
+import express from 'express';
+import morgan from 'morgan';
+
 
 const server = express();
 const PORT = 3000;
 
-// Función para construir una ruta
+// Funciones
 const buildUrl = (version, path = '') => `/api/${version}/${path}`;
 
-// RUTAS
+// Middleware
+server.use(morgan('tiny'));
+server.use(bodyParser.json());
+
+// Rutas
 server.use(buildUrl('v1'), StudentRoutes);
 server.use(buildUrl('v1'), CareerRoutes);
 

@@ -247,7 +247,7 @@ Respuesta de `api/v1/careers`
 
 ![careers_json](./docs/images/careers_json.PNG)
 
-# Paso de parámetros por ruta
+# 4 Paso de parámetros por ruta
 
 En base a una ruta específica podemos pasar parámetros para administrar la respuesta del servidor, en este caso específico para buscar los datos de un alumno por medio de su `id`, lo que se busca es lo siguiente.
 
@@ -378,4 +378,53 @@ module.exports = router;
 ```
 
 Y el funcionamiento sigue siendo el mismo, sólo que ahora el código tiene más estructura y así puede ser mejor mantenido.
+
+# 6 Creación de datos con body-parser
+Este middleware realiza un _"parseo"_ de las peticiones entrantes antes de que lleguen a los manejadores, disponible bajo la propiedad `req.body` property.
+
+Al inicio de la aplicación o de iniciar el servidor cuando se solicita la información de los estudiantes se obteiene la siguiente información, que es información que se encuentra estática en un documento `json`.
+
+![students_init_get_postman](./docs/images/students_init_get_postman.PNG)
+
+Para conseguir agregar otro objeto en el documento es necesario primero definir la ruta específica que se utilizará para realizar dicho procedimiento.
+
+Entonces la ruta para crear un nuevo objeto en el archivo `json`queda de la siguiente forma:
+
+```javascript
+// api/v1/students/new
+router.post('/students/new', (req, res) => {
+    console.log("Solicitando registro de nuevo estudiante.");
+    console.log(req.body);
+
+    const student = _.find(studentsArray, { "id": req.body.id });
+
+    if (student) {
+        console.log(`Ya existe un estudiante con el id: ${req.body.id}`);
+        res.end();
+    } else {
+        studentsArray.push(req.body);
+        res.status(200).send("OK");
+    }
+});
+```
+
+Con la ayuda de la librería `lodash` hace una búsqueda dentro del array `studentsArray` que se ha convertido en una variable temporal para almacenar y mostrar los datos de los estudiantes.
+
+Entonces ahora cuando se realiza una petición a la dirección: `/students/new` para agregar un nuevo estudiante mostrará lo siguiente:
+
+![students_first_new_postman](./docs/images/students_first_new_postman.PNG)
+
+En la imagen anterior se puede ver como se retorna un mensaje de OK.
+
+Si se realiza entonces de nuevo una petición `GET` para ver los datos de todos los estuiantes se podrá ver lo siguiente:
+
+![students_after_get_postman](./docs/images/students_after_get_postman.PNG)
+
+Se puede ver que el objeto que se le ha pasado se ha agregado correctamente y si se intenta realizar de nuevo la petición `POST` se obtiene un mensaje como el siguiente:
+
+![student_second_post](./docs/images/student_second_post.PNG)
+
+Esto es porque se realizó una mínima validación sobre el `id` de un objeto que ya se encontraba en la fuente de datos.
+
+Más sin embargo hasta este punto aún los datos se vuelven a borrar, así es que aún no son persistentes.
 

@@ -246,3 +246,60 @@ Respuesta de `api/v1/students`
 Respuesta de `api/v1/careers`
 
 ![careers_json](./docs/images/careers_json.PNG)
+
+# Paso de parámetros por ruta
+
+En base a una ruta específica podemos pasar parámetros para administrar la respuesta del servidor, en este caso específico para buscar los datos de un alumno por medio de su `id`, lo que se busca es lo siguiente.
+
+`http://localhost:3000/api/v1/student/1`
+
+De acuerdo a esta ruta nos arroje los datos del estudiante con el id igual a 1, para realizar esto se comienza agregando una nueva ruta con el verbo `get` de la siguiente forma:
+
+```javascript
+// api/v1/student/:id
+server.get(buildUrl('v1', 'student/:id'), (req, res) => {
+    console.log(`Estás buscando al estudiante con el id: ${req.params.id}`);
+    res.end();
+});
+```
+
+Ya que se tiene una función para _crear una URL_ simplemente se modifica para obtener la ruta deseada, cuando se entra al navegador con la siguiente ruta:
+
+![parameter_browser_log](./docs/images/parameter_browser_log.PNG)
+
+Y no se muestra nada porque aún no se ha enviado nada al navegador, mas sin embargo en la consola de la terminal se puede apreciar lo siguiente, que es el mensaje que se estableció.
+
+![parameter_terminal_log](./docs/images/parameter_terminal_log.PNG)
+
+Y se puede apreciar que se puede ver el parámetro `1` que se le había enviado desde la ruta.
+
+## Instalación de lodash
+Como ayuda para el manejo de datos se hará uso de la librería de nombre [lodash](https://lodash.com/).
+
+### Instalación lodash
+Para la instalación de la librería sólo es necesario escribir lo siguiente en la terminal.
+
+`npm i -S lodash`
+
+Una vez instalado lodash, se procede a probar el siguiente código:
+```javascript
+// api/v1/student/:id
+server.get(buildUrl('v1', 'student/:id'), (req, res) => {
+    const student = _.find(students, student => student.id === req.params.id);
+
+    if (student) {
+        res.json(student);
+    } else {
+        console.log(`No existe el estudiante con el id: ${req.params.id}`);
+    }
+    res.end();
+});
+```
+
+Se puede observar que de acurdo a un parámetro enviado se busca en la colección de datos que se tiene de `students` para verificar si el estudiante con tal id existe, si es así, responde con los datos del estudiante encontrado, si no, sólo muestra un mensaje en consola.
+
+Si se entra a buscar los datos del estudiante 1, se obtendrá una respuesta como la siguiente.
+![student_one_json](./docs/images/student_one_json.PNG)
+
+Mas sin embargo si se busca un elemento que no existe se obtiene el siguiente mensaje.
+![student_four_json](./docs/images/student_four_json.PNG)

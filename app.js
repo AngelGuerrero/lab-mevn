@@ -15,6 +15,13 @@ const buildUrl = (version, path = '') => `/api/${version}/${path}`;
 server.use(morgan('tiny'));
 server.use(bodyParser.json());
 
+server.use(function(req, res, next){
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, PATCH, DELETE, OPTIONS');
+    next();
+});
+
 // Rutas
 server.use(buildUrl('v1'), StudentRoutes);
 server.use(buildUrl('v1'), CareerRoutes);

@@ -428,3 +428,106 @@ Esto es porque se realizó una mínima validación sobre el `id` de un objeto qu
 
 Más sin embargo hasta este punto aún los datos se vuelven a borrar, así es que aún no son persistentes.
 
+# 7 Persistencia de datos
+Ahora que se puede mandar y obtenrer información, es necesario que esta información se guarde en algún lado.
+
+Para ello registré una cuenta en `mLab` que trabaja con MongoDB.
+
+![registro_mlab](./docs/images/registro_mlab.PNG)
+
+Después del registro y de crear una base de datos con un provedor se obtiene la siguiente información que es la información para la conexión a la base de datos con MongoDB.
+
+![datos_db_mongo](./docs/images/datos_db_mongo.PNG)
+
+## Instalando paquetería necesaria para conexión con BD
+Para la conexión a la base de datos se utilizará el siguiente paquete de nombre: `mongoose`.
+
+comando: `npm i -S mongoose`
+
+## Configuración de datos para conexión
+Una vez que se ha instalado el paquete mongoose, se procede a realizar la conexión con la base de datos en este caso del archivo de `StudentRoutes.js`
+se importa el paquete `mongoose` y se agrega lo siguiente:
+
+```javascript
+const DB_USER = '';
+const DB_USER_PASSWD = '';
+const DB_URL = `mongodb://${DB_USER}:${DB_USER_PASSWD}@ds119692.mlab.com:19692/angelguerreroprojects`;
+
+// Database connection
+mongoose.connect(DB_URL);
+const DB = mongoose.connection;
+DB.once('open', () => console.log('Successfully connection.'));
+```
+
+Simplemente se agregan las variables para la conexión a la base de datos de mlab.
+
+## Verbos REST
+Se le conoce como REST a la arquitectura que maneja los estados de transferencia, los cuales también se les conoce como verbos los cuales principalmente son los siguientes:
+
+- POST: Se utiliza para insertar información.
+- GET: Se utiliza para solicitar información.
+- PUT: Se utiliza para actualizar información.
+- DELETE: Se utiliza para borrar información.
+
+Dada esta teoría fue necesario modificar las rutas para concordar con esta arquitectura y poder realizar un CRUD (Create, Read, Update, Delete) las cuales quedaron de la siguiente forma:
+
+### CREATE
+```javascript
+// api/v1/students/new
+ROUTER.post('/students/new', (req, res) => {
+    const id = new mongoose.Types.ObjectId();
+
+    const studentToPersist = Object.assign({
+        _id: id,
+    }, req.body);
+
+    const student = new StudentModel(studentToPersist);
+    student.save().then((err, student) =>{
+        if(err) res.status(500).send(err);
+
+        res.json(student);
+    });
+    
+});
+```
+El código anterior se modificó para que concuerde con el modelo y el esquema que trabaja mongoose, pero básicamente primero se asigna un tipo de objeto para la constante `id`, y se asigana a los valores de un objeto aisgnando el id y el cuerpo del request.
+
+---
+
+### READ
+```javascript
+// api/v1/students.json
+ROUTER.get('/students', (req, res) => res.json(studentsArray));
+
+// api/v1/student/:id
+ROUTER.get('/student/:id', (req, res) => {
+    const student = _.find(studentsArray, student => student.id === req.params.id);
+    (student) ? res.json(student) : res.send(`No existe el estudiante con el id ${req.params.id}`);
+});
+```
+El código anterior corresponde a la acción de lectura de datos, petición GET que se hace al servidor para obtener los datos, aunque en este código aún se están obteniendo datos de forma local.
+
+Antes de continuar con el código anterior, es necesario notar que mongoose trabaja con un Schema, es decir se tiene qué definir un esquema para poder realizar operaciones con él, de acuerdo a este caso, el esquema para mongoose quedaría de la siguiente forma:
+
+```javascript
+// Schema
+const StudentSchema = mongoose.Schema({
+    _id: mongoose.Schema.Types.ObjectId,
+    name: String,
+    course: String
+});
+
+// Model
+const StudentModel = mongoose.model('Student', StudentSchema);
+```
+### Pruebas guardando datos
+Si se lanza una petición a la ruta para craer un nuevo objeto en la base de datos, la respuesta sería la siguiente:
+
+![nuevo_objeto_mlab](./docs/images/nuevo_objeto_mlab.PNG)
+
+En la imagen puede apreciarse que no es necesario establecer un id, ya que se le ha dicho que se defina un id de acuerdo al esquema y al modelo que se definió con mongoose.
+
+Se puede ver también que hay una persistencia de datos revisando la base de datos.
+
+![mlab_primer_objeto](./docs/images/mlab_primer_objeto.PNG)
+

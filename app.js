@@ -1,33 +1,48 @@
-import StudentRoutes from './routes/StudentRoutes';
-import CareerRoutes from './routes/CareerRoutes';
+import studentsRouter from './app/routes/students'
+import careersRouter from './app/routes/careers';
 import bodyParser from 'body-parser';
 import express from 'express';
-import morgan from 'morgan';
+import logger from 'morgan';
+import path from 'path';
 
+var app = express();
 
-const server = express();
-const PORT = 3000;
+//
+// View engine setup
+//
+app.set('views', path.join(__dirname, 'app/views'));
+// app.set('view engine', '');
 
-// Funciones
-const buildUrl = (version, path = '') => `/api/${version}/${path}`;
+app.use(express.static(path.join(__dirname, 'public')));
 
+//
 // Middleware
-server.use(morgan('tiny'));
-server.use(bodyParser.json());
+//
+app.use(logger('tiny'));
+app.use(bodyParser.json());
 
-server.use(function(req, res, next){
+app.use(function(req, res, next){
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type');
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, PATCH, DELETE, OPTIONS');
     next();
 });
 
-// Rutas
-server.use(buildUrl('v1'), StudentRoutes);
-server.use(buildUrl('v1'), CareerRoutes);
+//
+// Routes
+//
+app.use('/api/students/', studentsRouter);
+app.use('/api/careers', careersRouter);
 
+//
 // Root path
-server.get('/', (req, res) => res.send('Hola mundo desde Express'));
+//
+app.get('/', (req, res) => res.send('Hola mundo desde Express'));
 
-// Inicia el servidor
-server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+// Catch 404 error
+app.use((req, res, next) => {
+    return res.send('404 page not found');
+});
+
+
+module.exports = app;

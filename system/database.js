@@ -15,7 +15,10 @@ module.exports = class Connection {
         var config = readYaml.sync(this.config_path);
 
         if (config) {
-            this.db_url = `${this.prefix_url}${config.database.user}:${config.database.password}${config.database.url}`;
+            this.user = config.database.user;
+            this.password = config.database.password;
+
+            this.db_url = `${this.prefix_url}${this.user}:${this.password}${config.database.url}`;
         } else {
             console.log('Error trying read the database.yaml');
         }
@@ -28,7 +31,11 @@ module.exports = class Connection {
                 .then(() => console.log(`Successfully database connection.`),
                       (err) => {
                           console.log("Something went wront trying to connect to the database.");
-                          console.log(`Error: ${err.code}. Message: ${err.errmsg}`);
+                          if (!this.user || !this.password) {
+                              console.log('There was not provided a username or password');
+                          } else {
+                              console.log(`Error: ${err.code}. Message: ${err.errmsg}`);
+                          }
                     });
     }
 }

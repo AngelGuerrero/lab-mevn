@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
 
 // Schema
-const StudentSchema = mongoose.Schema({
+const studentSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     name: String,
     course: String
 });
 
 // Model
-const StudentModel = mongoose.model('Student', StudentSchema);
+const studentModel = mongoose.model('Student', studentSchema);
 
-module.exports = { StudentSchema, StudentModel };
+module.exports = { studentSchema, studentModel };

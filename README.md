@@ -471,56 +471,48 @@ Se le conoce como REST a la arquitectura que maneja los estados de transferencia
 
 Dada esta teoría fue necesario modificar las rutas para concordar con esta arquitectura y poder realizar un CRUD (Create, Read, Update, Delete) las cuales quedaron de la siguiente forma:
 
-### CREATE
+Antes de continuar, es necesario notar que mongoose trabaja con un Schema, es decir se tiene qué definir un esquema para poder realizar operaciones con él, de acuerdo a este caso el esquema para mongoose quedaría de la siguiente forma, se ha creado un archivo llamado modelo para especificar el esquema y el modelo para trabajar. 
+
+Archivo: `models/student.js`
 ```javascript
-// api/v1/students/new
-ROUTER.post('/students/new', (req, res) => {
-    const id = new mongoose.Types.ObjectId();
+import mongoose from 'mongoose';
 
-    const studentToPersist = Object.assign({
-        _id: id,
-    }, req.body);
-
-    const student = new StudentModel(studentToPersist);
-    student.save().then((err, student) =>{
-        if(err) res.status(500).send(err);
-
-        res.json(student);
-    });
-    
-});
-```
-El código anterior se modificó para que concuerde con el modelo y el esquema que trabaja mongoose, pero básicamente primero se asigna un tipo de objeto para la constante `id`, y se asigana a los valores de un objeto aisgnando el id y el cuerpo del request.
-
----
-
-### READ
-```javascript
-// api/v1/students.json
-ROUTER.get('/students', (req, res) => res.json(studentsArray));
-
-// api/v1/student/:id
-ROUTER.get('/student/:id', (req, res) => {
-    const student = _.find(studentsArray, student => student.id === req.params.id);
-    (student) ? res.json(student) : res.send(`No existe el estudiante con el id ${req.params.id}`);
-});
-```
-El código anterior corresponde a la acción de lectura de datos, petición GET que se hace al servidor para obtener los datos, aunque en este código aún se están obteniendo datos de forma local.
-
-Antes de continuar con el código anterior, es necesario notar que mongoose trabaja con un Schema, es decir se tiene qué definir un esquema para poder realizar operaciones con él, de acuerdo a este caso, el esquema para mongoose quedaría de la siguiente forma:
-
-```javascript
 // Schema
-const StudentSchema = mongoose.Schema({
+const studentSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     name: String,
     course: String
 });
 
 // Model
-const StudentModel = mongoose.model('Student', StudentSchema);
+const studentModel = mongoose.model('Student', studentSchema);
+
+module.exports = { studentSchema, studentModel };
 ```
-### Pruebas guardando datos
+---
+
+### CREATE
+```javascript
+// /new
+router.post('/new', (req, res) => {
+    const id = new mongoose.Types.ObjectId();
+
+    const studentToPersist = Object.assign({
+        _id: id,
+    }, req.body);
+
+    const student = new studentModel(studentToPersist);
+    student.save().then((err, student) => {
+        if(err) res.status(500).json(err);
+
+        res.status(200).json(student);
+    });
+
+});
+```
+El código anterior se modificó para que concuerde con el modelo y el esquema que trabaja mongoose, pero básicamente primero se asigna un tipo de objeto para la constante `id`, y se asigana a los valores de un objeto aisgnando el id y el cuerpo del request.
+
+#### Pruebas guardando datos
 Si se lanza una petición a la ruta para craer un nuevo objeto en la base de datos, la respuesta sería la siguiente:
 
 ![nuevo_objeto_mlab](./docs/images/nuevo_objeto_mlab.PNG)
@@ -531,3 +523,97 @@ Se puede ver también que hay una persistencia de datos revisando la base de dat
 
 ![mlab_primer_objeto](./docs/images/mlab_primer_objeto.PNG)
 
+---
+
+### READ
+Se ha modificado el código para leer los datos desde el servidor donde se encuentra la base de datos de Mongo.
+```javascript
+// /
+router.get('/', (req, res) => {
+    studentModel.find((err, students) => {
+        if (err) res.status(500).json(err);
+
+        res.json(students);
+    });
+});
+
+// /show/:id
+router.get('/show/:id', (req, res) => {
+    studentModel.findById(
+        // id of the item to find
+        req.params.id, 
+        
+        // the callback function
+        (err, student) => {
+            if (err) res.status(500).json(err);
+        
+            res.json(student);
+        });
+});
+```
+El código anterior corresponde a la acción de lectura de datos, petición GET que se hace al servidor para obtener los datos.
+
+---
+
+### UPDATE
+
+De igual forma para actualizar un elemento se ha modificado el código para buscar por un id en específico utilizando `studentModel`.
+
+```javascript
+// /edit/:id
+router.put('/edit/:id', (req, res) => {
+    studentModel.findByIdAndUpdate(
+        // id of the item to find
+        req.params.id, 
+        
+        // the change to be made
+        req.body,
+
+        // asks to mongoose to return the updated version
+        { new: true},
+
+        // the callback function
+        (err, student) => {
+        
+            if (err) res.status(500).json(err);
+            
+            res.status(200).json(student);
+        });
+});
+```
+
+En la siguiente imagen puede verse los datos que se encuentran actualmente.
+![datos_antes_editar](./docs/images/datos_antes_editar.PNG)
+
+Si se envía una petición de tipo PUT para editar ese objeto, se obtiene lo siguiente.
+
+![respuesta_editar](./docs/images/respuesta_editar.PNG)
+---
+
+### DELETE
+
+Al igual que para actualizar un item de la colección se utilizó una función dada por mongoose para mejorar estas operaciones, de tal forma que el código para eliminar un objeto quedaría de la siguiente forma:
+
+```javascript
+// /delete/:id
+router.delete('/delete/:id', (req, res) => {
+    studentModel.findByIdAndRemove(
+      req.params.id,
+      
+      // the callback function
+      (err, student) => {
+          if (err) return res.status(500).json(err);
+
+          const response = {
+              message: "Student successfully deleted",
+              id: student._id
+          };
+          return res.status(200).json(response);
+      });
+});
+```
+Para eliminar el objeto simplemente es necesario pasar el id por la URL haciendo una petición del tipo DELETE.
+
+![respuesta_borrar](./docs/images/respuesta_borrar.PNG)
+
+Nótese que se están utilizando los verbos POST, PUT y DELETE que generalmente se usan en aplicaciones con arquitectura REST.

@@ -29,15 +29,10 @@ app.use(function(req, res, next){
 });
 
 //
-// Custom functions
-//
-const buildUrl = (version, path = '') => `/api/${version}/${path}`;
-
-//
 // Routes
 //
-app.use(buildUrl('v1', 'students'), studentsRouter);
-app.use(buildUrl('v1', 'careers'), careersRouter);
+app.use('/api/students/', studentsRouter);
+app.use('/api/careers', careersRouter);
 
 //
 // Root path
